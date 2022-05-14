@@ -1,0 +1,50 @@
+version: "3.9"
+
+volumes:
+  pgdata:
+  redis: {}
+
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  redis:
+    image: "redis:alpine"
+    restart: always
+    volumes:
+      - "redis:/data"
+  app:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "7779:8000"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: .
+    command: "celery -A myproject worker -l info --queue=fila1"
+    depends_on:
+      - app
+      - redis
+      - db
+    restart: on-failure
+  flower:
+    build: .
+    ports:
+      - '5555:5555'
+    command: "celery -A myproject flower --address=0.0.0.0"
+    depends_on:
+      - celery
