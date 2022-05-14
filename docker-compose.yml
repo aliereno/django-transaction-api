@@ -20,7 +20,9 @@ services:
     volumes:
       - "redis:/data"
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
@@ -34,17 +36,25 @@ services:
       - db
       - redis
   celery:
-    build: .
-    command: "celery -A myproject worker -l info --queue=fila1"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "celery -A app worker -l info"
+    volumes:
+      - .:/code
     depends_on:
       - app
       - redis
       - db
-    restart: on-failure
+    # restart: on-failure
   flower:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - '5555:5555'
-    command: "celery -A myproject flower --address=0.0.0.0"
+    command: "celery -A app flower --address=0.0.0.0"
+    volumes:
+      - .:/code
     depends_on:
       - celery
