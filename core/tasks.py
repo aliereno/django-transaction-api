@@ -10,7 +10,9 @@ from core.models.transaction import Transaction as TransactionModel
 def handle_approved_transaction(transaction_id):
 
     with transaction.atomic():
-        transaction_object = TransactionModel.objects.select_for_update().get(pk=transaction_id, transaction_status=TransactionStatus.PENDING)
+        transaction_object = TransactionModel.objects.select_for_update().get(
+            pk=transaction_id, transaction_status=TransactionStatus.PENDING
+        )
         organization_object = OrganizationModel.objects.select_for_update().get(
             pk=transaction_object.organization.pk
         )

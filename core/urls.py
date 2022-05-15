@@ -16,12 +16,12 @@ urlpatterns = [
     path(
         "organization/<str:organization_id>/deposit",
         organization.OrganizationDepositView.as_view(),
-        name="organization_request_list",
+        name="organization_customer_deposit",
     ),
     path(
         "organization/<str:organization_id>/withdrawal",
         organization.OrganizationWithdrawalView.as_view(),
-        name="organization_request_list",
+        name="organization_customer_withdrawal",
     ),
     path(
         "organization/<str:organization_id>/approvements/<str:approvement_id>",
